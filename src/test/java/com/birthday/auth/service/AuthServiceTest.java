@@ -1,6 +1,6 @@
 package com.birthday.auth.service;
 
-import com.birthday.auth.domain.dto.SignupRequest;
+import com.birthday.auth.domain.dto.request.SignupRequest;
 import com.birthday.auth.domain.entity.Account;
 import com.birthday.auth.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
@@ -8,8 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -47,5 +46,16 @@ class AuthServiceTest {
 
     @Test
     void logout() {
+    }
+
+    @Test
+    void isExistEmail() {
+        authService.signup(signupRequest);
+
+        boolean isExist = authService.isEmailExist(signupRequest.getEmail());
+        boolean isNotExist = authService.isEmailExist("notExist@email.com");
+
+        assertTrue(isExist);
+        assertFalse(isNotExist);
     }
 }

@@ -1,7 +1,7 @@
 package com.birthday.auth.service;
 
-import com.birthday.auth.domain.dto.SignupRequest;
 import com.birthday.auth.domain.dto.TokenPair;
+import com.birthday.auth.domain.dto.request.SignupRequest;
 import com.birthday.auth.domain.entity.Account;
 import com.birthday.auth.mapper.SignupDtoMapper;
 import com.birthday.auth.repository.AccountRepository;
@@ -36,5 +36,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(Long userId) {
 
+    }
+
+    @Override
+    public boolean isEmailExist(String email) {
+        return accountRepository.findByEmail(email).isPresent();
     }
 }

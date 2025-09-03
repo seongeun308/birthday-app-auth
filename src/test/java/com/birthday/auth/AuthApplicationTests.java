@@ -12,6 +12,7 @@ import java.time.LocalDate;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -55,5 +56,21 @@ class AuthApplicationTests {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code", equalTo(AuthErrorCode.VALIDATION_ERROR.getCode())))
                 .andExpect(jsonPath("$.errors", hasSize(5)));
+    }
+
+    @Test
+    void 이메일_존재하면_available_false() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/check-email")
+                        .queryParam("email", "test@email.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.available", equalTo(false)));
+    }
+
+    @Test
+    void 이메일_존재하지_않으면_available_true() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/check-email")
+                        .queryParam("email", "test@email.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.available", equalTo(true)));
     }
 }

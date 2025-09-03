@@ -1,14 +1,12 @@
 package com.birthday.auth.controller;
 
 import com.birthday.auth.api.Result;
-import com.birthday.auth.domain.dto.SignupRequest;
+import com.birthday.auth.domain.dto.request.SignupRequest;
+import com.birthday.auth.domain.dto.response.CheckResponse;
 import com.birthday.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -22,5 +20,13 @@ public class AuthController {
         authService.signup(signupRequest);
 
         return Result.success();
+    }
+
+    @GetMapping("/check-email")
+    public Result<CheckResponse> checkEmail(@RequestParam String email) {
+        boolean isAvailable = !authService.isEmailExist(email);
+        CheckResponse checkResponse = new CheckResponse(isAvailable);
+
+        return Result.success(checkResponse);
     }
 }

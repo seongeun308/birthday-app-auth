@@ -1,4 +1,4 @@
-package com.birthday.auth.domain.dto;
+package com.birthday.auth.domain.dto.request;
 
 import com.birthday.auth.annotation.Password;
 import com.birthday.auth.annotation.ProfileImage;
