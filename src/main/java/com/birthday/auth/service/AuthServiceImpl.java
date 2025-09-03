@@ -1,6 +1,6 @@
 package com.birthday.auth.service;
 
-import com.birthday.auth.domain.dto.SignupDto;
+import com.birthday.auth.domain.dto.SignupRequest;
 import com.birthday.auth.domain.dto.TokenPair;
 import com.birthday.auth.domain.entity.Account;
 import com.birthday.auth.mapper.SignupDtoMapper;
@@ -16,8 +16,8 @@ public class AuthServiceImpl implements AuthService {
     private final SignupDtoMapper signupDtoMapper;
 
     @Override
-    public void signup(SignupDto signupDto) {
-        Account account = signupDtoMapper.toAccount(signupDto);
+    public void signup(SignupRequest signupRequest) {
+        Account account = signupDtoMapper.toAccount(signupRequest);
         accountRepository.save(account);
 
         // todo: 계정 생성 이벤트 발행
