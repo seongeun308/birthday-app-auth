@@ -1,12 +1,12 @@
 package com.birthday.auth.repository;
 
+import com.birthday.auth.TokenUtils;
 import com.birthday.auth.domain.dto.Token;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 
 @Repository
 @RequiredArgsConstructor
@@ -18,10 +18,7 @@ public class RedisRefreshTokenRepository implements RefreshTokenRepository {
 
     @Override
     public void save(Long accountId, Token token) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expireAt = LocalDateTime.parse(token.getExpireAt());
-
-        Duration duration = Duration.between(now, expireAt);
+        Duration duration = TokenUtils.getExpireDuration(token.getExpireAt());
 
         redisTemplate.opsForValue().set(PREFIX + accountId, token.getToken(), duration);
     }
