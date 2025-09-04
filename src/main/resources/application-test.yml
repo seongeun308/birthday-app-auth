@@ -5,3 +5,13 @@ spring:
     password: password
     hikari:
       maximum-pool-size: 5
+
+  data:
+    redis:
+      host: localhost
+      port: 6370  # 테스트용 redis 서버
+
+# Todo : raw_key 변경 후 환경변수 처리
+jwt:
+  expiration-minutes: 15
+  expiration-days: 7

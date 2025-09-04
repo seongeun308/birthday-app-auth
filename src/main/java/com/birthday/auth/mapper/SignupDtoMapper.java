@@ -1,10 +1,11 @@
 package com.birthday.auth.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.birthday.auth.domain.dto.request.SignupRequest;
 import com.birthday.auth.domain.entity.Account;
 import com.birthday.auth.encryptor.PasswordEncryptor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

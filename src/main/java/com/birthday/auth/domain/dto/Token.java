@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @ToString
-public class TokenPair {
-    private final Token accessToken;
-    private final Token refreshToken;
+public class Token {
+    private String token;
+    private String expireAt;
 }
