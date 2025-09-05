@@ -8,5 +8,5 @@ import java.util.Map;
 public interface TokenService {
     Token generateToken(TokenType type, Map<String, Object> claims);
 
-    void validateToken(Token token);
+    void validateToken(String token);
 }

@@ -10,6 +10,7 @@ public enum AuthErrorCode implements ErrorCode {
 
     VALIDATION_ERROR(1001, HttpStatus.BAD_REQUEST, "입력값 검증에 실패했습니다"),
     ACCOUNT_NOT_FOUND(1002, HttpStatus.UNAUTHORIZED, "존재하지 않는 계정입니다."),
+    DUPLICATE_LOGIN(1003, HttpStatus.CONFLICT, "이미 로그인되어 있는 상태입니다."),
     ;
 
     private final int code;

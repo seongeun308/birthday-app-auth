@@ -1,10 +1,10 @@
 package com.birthday.auth;
 
 import com.birthday.auth.api.error.AuthErrorCode;
+import com.birthday.auth.domain.dto.TokenPair;
 import com.birthday.auth.domain.dto.request.LoginRequest;
 import com.birthday.auth.domain.dto.request.SignupRequest;
 import com.birthday.auth.service.AuthService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,6 @@ class AuthApplicationTests {
     void clear() {
         stringRedisTemplate.getConnectionFactory().getConnection().flushDb();
     }
-
 
     @Test
     void 회원가입_성공하면_200_반환() throws Exception {
@@ -132,5 +131,27 @@ class AuthApplicationTests {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message", equalTo(AuthErrorCode.ACCOUNT_NOT_FOUND.getMessage())));
+    }
+
+    @Test
+    void 중복_로그인_시_409_반환() throws Exception {
+        SignupRequest signupRequest = new SignupRequest(
+                "test@email.com",
+                "test123!!",
+                "kim",
+                null,
+                null
+        );
+        authService.signup(signupRequest);
+        LoginRequest loginRequest = new LoginRequest(signupRequest.getEmail(), signupRequest.getPassword());
+        TokenPair tokenPair = authService.login(loginRequest);
+
+        mockMvc.perform(post(BASE_URL + "/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenPair.getAccessToken().getToken())
+                        .content(objectMapper.writeValueAsBytes(loginRequest))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message", equalTo(AuthErrorCode.DUPLICATE_LOGIN.getMessage())));
     }
 }

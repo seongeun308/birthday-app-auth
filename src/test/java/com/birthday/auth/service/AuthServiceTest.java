@@ -2,6 +2,7 @@ package com.birthday.auth.service;
 
 import com.birthday.auth.api.error.AuthErrorCode;
 import com.birthday.auth.domain.dto.TokenPair;
+import com.birthday.auth.domain.dto.request.LoginRequest;
 import com.birthday.auth.domain.dto.request.SignupRequest;
 import com.birthday.auth.domain.entity.Account;
 import com.birthday.auth.exception.AuthException;
@@ -56,7 +57,8 @@ class AuthServiceTest {
     void 로그인_성공_시_토큰들_반환() {
         signup();
 
-        TokenPair tokenPair = authService.login(signupRequest.getEmail(), signupRequest.getPassword());
+
+        TokenPair tokenPair = authService.login(new LoginRequest(signupRequest.getEmail(), signupRequest.getPassword()));
 
         assertNotNull(tokenPair);
         assertNotNull(tokenPair.getAccessToken());
@@ -65,8 +67,8 @@ class AuthServiceTest {
 
     @Test
     void 로그인_시_존재하지_않은_계정일_경우_AuthException_발생() {
-        AuthException exception = assertThrows(AuthException.class, () ->
-                authService.login(signupRequest.getEmail(), signupRequest.getPassword())
+        AuthException exception = assertThrows(AuthException.class,
+                () -> authService.login(new LoginRequest(signupRequest.getEmail(), signupRequest.getPassword()))
         );
 
         assertEquals(AuthErrorCode.ACCOUNT_NOT_FOUND, exception.getErrorCode());
@@ -85,5 +87,16 @@ class AuthServiceTest {
 
         assertTrue(isExist);
         assertFalse(isNotExist);
+    }
+
+    @Test
+    void validateDuplicateLogin() {
+        authService.signup(signupRequest);
+        TokenPair tokenPair = authService.login(new LoginRequest(signupRequest.getEmail(), signupRequest.getPassword()));
+
+        AuthException e = assertThrows(AuthException.class,
+                () -> authService.validateDuplicateLogin(tokenPair.getAccessToken().getToken()));
+
+        assertEquals(AuthErrorCode.DUPLICATE_LOGIN, e.getErrorCode());
     }
 }

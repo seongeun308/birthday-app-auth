@@ -4,10 +4,12 @@ import com.birthday.auth.api.error.AuthErrorCode;
 import com.birthday.auth.domain.TokenType;
 import com.birthday.auth.domain.dto.Token;
 import com.birthday.auth.domain.dto.TokenPair;
+import com.birthday.auth.domain.dto.request.LoginRequest;
 import com.birthday.auth.domain.dto.request.SignupRequest;
 import com.birthday.auth.domain.entity.Account;
 import com.birthday.auth.encryptor.PasswordEncryptor;
 import com.birthday.auth.exception.AuthException;
+import com.birthday.auth.exception.TokenException;
 import com.birthday.auth.mapper.SignupDtoMapper;
 import com.birthday.auth.repository.AccountRepository;
 import com.birthday.auth.repository.RefreshTokenRepository;
@@ -40,11 +42,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public TokenPair login(String email, String password) {
-        Account account = accountRepository.findByEmail(email)
+    public TokenPair login(LoginRequest loginRequest) {
+        Account account = accountRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new AuthException(AuthErrorCode.ACCOUNT_NOT_FOUND));
 
-        if (!passwordEncryptor.matches(password, account.getPassword())) {
+        if (!passwordEncryptor.matches(loginRequest.getPassword(), account.getPassword())) {
             throw new AuthException(AuthErrorCode.ACCOUNT_NOT_FOUND);
         }
 
@@ -65,4 +67,17 @@ public class AuthServiceImpl implements AuthService {
     public boolean isEmailExist(String email) {
         return accountRepository.findByEmail(email).isPresent();
     }
+
+    @Override
+    public void validateDuplicateLogin(String token) {
+        try {
+            tokenService.validateToken(token);
+        } catch (TokenException e) {
+            return;
+        }
+
+        throw new AuthException(AuthErrorCode.DUPLICATE_LOGIN); // 유효한 토큰이면 중복 로그인
+    }
+
+
 }

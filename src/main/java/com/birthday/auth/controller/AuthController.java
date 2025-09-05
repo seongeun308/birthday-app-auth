@@ -9,6 +9,7 @@ import com.birthday.auth.domain.dto.request.SignupRequest;
 import com.birthday.auth.domain.dto.response.CheckResponse;
 import com.birthday.auth.domain.dto.response.LoginResponse;
 import com.birthday.auth.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +23,6 @@ import java.time.Duration;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-
 
 
     private final AuthService authService;
@@ -43,15 +43,17 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Result<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
-        TokenPair tokenPair = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
+    public ResponseEntity<Result<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest httpRequest) {
+        TokenUtils.extractAccessToken(httpRequest)
+                .ifPresent(authService::validateDuplicateLogin);
 
-        Token accessToken = tokenPair.getAccessToken();
+        TokenPair tokenPair = authService.login(loginRequest);
+
         Token refreshToken = tokenPair.getRefreshToken();
-
         Duration duration = TokenUtils.getExpireDuration(refreshToken.getExpireAt());
         ResponseCookie cookie = TokenUtils.createHttpOnlyCookie(refreshToken.getToken(), duration);
 
+        Token accessToken = tokenPair.getAccessToken();
         LoginResponse loginResponse = new LoginResponse(accessToken.getToken(), accessToken.getExpireAt());
 
         return ResponseEntity.ok()

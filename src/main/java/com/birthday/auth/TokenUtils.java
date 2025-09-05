@@ -1,9 +1,11 @@
 package com.birthday.auth;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseCookie;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public class TokenUtils {
     private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
@@ -25,6 +27,15 @@ public class TokenUtils {
                 .path(PATH)
                 .maxAge(expireDuration)
                 .build();
+    }
+
+    public static Optional<String> extractAccessToken(HttpServletRequest request) {
+        String header = request.getHeader(HEADER_STRING);
+        if (header == null || !header.startsWith(PREFIX)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(header.substring(PREFIX.length()));
     }
 
 

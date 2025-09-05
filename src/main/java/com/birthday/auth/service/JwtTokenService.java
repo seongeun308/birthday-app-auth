@@ -1,8 +1,10 @@
 package com.birthday.auth.service;
 
+import com.birthday.auth.api.error.TokenErrorCode;
 import com.birthday.auth.domain.TokenType;
 import com.birthday.auth.domain.dto.Token;
-import io.jsonwebtoken.Jwts;
+import com.birthday.auth.exception.TokenException;
+import io.jsonwebtoken.*;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -33,7 +35,29 @@ public class JwtTokenService implements TokenService {
     }
 
     @Override
-    public void validateToken(Token token) {
+    public void validateToken(String token) {
+        parseToken(token);
+    }
 
+    private Claims parseToken(String token) {
+        if (token == null || token.isEmpty()) {
+            throw new TokenException(TokenErrorCode.MISSING_TOKEN);
+        }
+
+        try {
+            return Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException ignored) {
+            throw new TokenException(TokenErrorCode.EXPIRED);
+        } catch (SecurityException ignored) {
+            throw new TokenException(TokenErrorCode.INVALID_SIGNATURE);
+        } catch (MalformedJwtException ignored) {
+            throw new TokenException(TokenErrorCode.MALFORMED);
+        } catch (JwtException ignored) {
+            throw new TokenException(TokenErrorCode.PARSE_ERROR);
+        }
     }
 }
